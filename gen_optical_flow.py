@@ -42,12 +42,13 @@ def get_optical_flow(frame_list, output_dir):
     return status, 'FINISHED GENERATING OPTICAL FLOW!'
 
 
-def main(video_root, output_dir):
+def main(video_root):
     final_status = False
     
     #create output folder if necessary
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
+    flow_folder = video_root+"/flow/"
+    if not os.path.exists(flow_folder):
+        os.mkdir(flow_folder)
 
     frame_list = sorted(glob.glob(os.path.join(video_root, 'img', "*.jpg")))
     
@@ -59,7 +60,7 @@ def main(video_root, output_dir):
         print("{:d} frames in {:s}".format(len(frame_list), video_root))
         
     print('READY TO GENEARTE OPTICAL FLOW!')
-    get_optical_flow(frame_list, output_dir)
+    get_optical_flow(frame_list, flow_folder)
 
     final_status = True
     return final_status
@@ -69,8 +70,6 @@ def main(video_root, output_dir):
 if __name__ == '__main__':
     description = 'Helper script for running detector over video frames.'
     p = argparse.ArgumentParser(description=description)
-    p.add_argument('video_dir', type=str,
-                   help='video frames directory where each video has a folder.')
-    p.add_argument('output_dir', type=str,
-                   help='Output directory where detection results will be saved.')   
+    p.add_argument('video_root', type=str,
+                   help='video frames directory where each video has a folder.')  
     main(**vars(p.parse_args()))
