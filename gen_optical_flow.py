@@ -46,7 +46,7 @@ def main(video_root):
     final_status = False
     
     #create output folder if necessary
-    flow_folder = video_root+"/flow/"
+    flow_folder = video_root+"flow/"
     if not os.path.exists(flow_folder):
         os.mkdir(flow_folder)
 
