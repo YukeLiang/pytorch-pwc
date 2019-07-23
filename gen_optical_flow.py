@@ -20,12 +20,11 @@ def get_optical_flow(frame_list, output_dir):
    
     print('START GENERATING OPTICAL FLOW!')
     for idx, frame in enumerate(frame_list):
-        first_frame = frame
-        if idx == len(frame_list) - 1:
-            print('Finished getting flow field for {:d} frames.'.format(len(frame_list))) 
-            break
-        second_frame = frame_list[idx + 1]
-        output_file = '%s%06d.flo'%(output_dir, idx + 1)
+        if idx == 0:
+            continue
+        first_frame = frame[idx - 1]
+        second_frame = frame
+        output_file = '%s%06d.flo'%(output_dir, idx)
         flow_cmd = ['python run.py',
                     '--model', 'default',
                     '--first', first_frame,
@@ -34,13 +33,13 @@ def get_optical_flow(frame_list, output_dir):
         flow_cmd = ' '.join(flow_cmd)
         try: 
             print('Processing...')
-            print('Finished getting flow field from {:d}th frame to {:d} frame.',
-                 idx + 1, idx + 2) 
+            print('Finished getting flow field from {:d}th frame to {:d} frame.'.format(idx-1, idx))
             subprocess.run(flow_cmd, shell=True)
         except subprocess.CalledProcessError as err:
             return status, err.output
 
     status = True
+    print('Finished getting flow field for {:d} frames.'.format(len(frame_list))) 
     return status, 'FINISHED GENERATING OPTICAL FLOW!'
 
 
