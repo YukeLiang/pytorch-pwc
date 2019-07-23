@@ -25,7 +25,7 @@ def get_optical_flow(frame_list, output_dir):
             print('Finished getting flow field for {:d} frames.'.format(len(frame_list))) 
             break
         second_frame = frame_list[idx + 1]
-        output_file = '%s%06d.flo'%(output_dir, idx)
+        output_file = '%s%06d.flo'%(output_dir, idx + 1)
         flow_cmd = ['python run.py',
                     '--model', 'default',
                     '--first', first_frame,
@@ -35,7 +35,7 @@ def get_optical_flow(frame_list, output_dir):
         try: 
             print('Processing...')
             print('Finished getting flow field from {:d}th frame to {:d} frame.',
-                 idx, idx + 1) 
+                 idx + 1, idx + 2) 
             subprocess.run(flow_cmd, shell=True)
         except subprocess.CalledProcessError as err:
             return status, err.output
