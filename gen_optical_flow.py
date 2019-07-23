@@ -19,17 +19,17 @@ def get_optical_flow(frame_list, output_dir):
     status = False
    
     print('START GENERATING OPTICAL FLOW!')
-    first_img = frame_list[0]
-    for f in frame_list:
-        second_img = f
-        if frame_list.index(f) == 0:
-            print("Skip generating optical flow for the first frame.")
-            continue
-        output_file = '%s%06d.flo'%(output_dir, frame_list.index(f))
-        flow_cmd = ['python run.py',
+    for idx, frame in enumerate(frame_list):
+        first_frame = frame
+        if idx == len(frame_list) - 1:
+            print('Finished getting flow field for {:d} frames.'.format(len(frame_list))) 
+            break
+        second_frame = frame_list[idx + 1]
+        output_file = '%s%06d.flo'%(output_dir, idx)
+        flow_cmd = ['python pytorch-pwc/run.py',
                     '--model', 'default',
-                    '--first', first_img,
-                    '--second', second_img,
+                    '--first', first_frame,
+                    '--second', second_frame,
                     '--out', output_file]
         flow_cmd = ' '.join(flow_cmd)
         try: 
@@ -37,36 +37,29 @@ def get_optical_flow(frame_list, output_dir):
             subprocess.run(flow_cmd, shell=True)
         except subprocess.CalledProcessError as err:
             return status, err.output
-        # Update the first image  passed to optical flow file
-        first_img = second_img
-        print('Finished getting flow field for {:d}th frames of {:d} frames.'.format(frame_list.index(f), len(frame_list))) 
 
     status = True
     return status, 'FINISHED GENERATING OPTICAL FLOW!'
 
 
-def main(video_dir, output_dir):
+def main(video_root, output_dir):
     final_status = False
-    # list all subfolders, i.e., videos
-    video_list = sorted(glob.glob(os.path.join(video_dir, '*/')))
-    print('Found {:d} videos'.format(len(video_list)))
     
     #create output folder if necessary
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    for video_folder in video_list:
-        frame_list = sorted(glob.glob(os.path.join(video_folder, 'img', "*.jpg")))
+    frame_list = sorted(glob.glob(os.path.join(video_root, 'img', "*.jpg")))
     
-        if len(frame_list) == 0:
-        # empty folder
-            print("{:s} empty folder!".format(video_folder))
-            return True, 'Empty'
-        else:
-            print("{:d} frames in {:s}".format(len(frame_list), video_folder))
+    if len(frame_list) == 0:
+    # empty folder
+        print("empty folder!")
+        return False, 'Empty'
+    else:
+        print("{:d} frames in {:s}".format(len(frame_list), video_root))
         
-        print('READY TO GENEARTE OPTICAL FLOW!')
-        get_optical_flow(frame_list, output_dir)
+    print('READY TO GENEARTE OPTICAL FLOW!')
+    get_optical_flow(frame_list, output_dir)
 
     final_status = True
     return final_status
