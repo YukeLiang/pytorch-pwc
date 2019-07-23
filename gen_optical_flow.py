@@ -15,31 +15,35 @@ import numpy as np
 import cv2
 import subprocess
 
+###### For https://github.com/sniklaus/pytorch-pwc
 def get_optical_flow(frame_list, output_dir):
     status = False
    
     print('START GENERATING OPTICAL FLOW!')
+    # first_img = frame_list[0]
     for idx, frame in enumerate(frame_list):
-        if idx == 0:
+        prev_idx = idx - 1
+        if prev_idx < 0:
             continue
-        first_frame = frame[idx - 1]
-        second_frame = frame
+        second_img = frame
+        first_img = frame_list[prev_idx]
+        # Be careful, named with source frame
         output_file = '%s%06d.flo'%(output_dir, idx)
         flow_cmd = ['python run.py',
                     '--model', 'default',
-                    '--first', first_frame,
-                    '--second', second_frame,
+                    '--first', first_img,
+                    '--second', second_img,
                     '--out', output_file]
         flow_cmd = ' '.join(flow_cmd)
         try: 
             print('Processing...')
-            print('Finished getting flow field from {:d}th frame to {:d} frame.'.format(idx-1, idx))
             subprocess.run(flow_cmd, shell=True)
         except subprocess.CalledProcessError as err:
             return status, err.output
+        print('Finished getting flow field from {:d}th frame to {:d}th frame.'
+        .format(idx, idx+1))
 
     status = True
-    print('Finished getting flow field for {:d} frames.'.format(len(frame_list))) 
     return status, 'FINISHED GENERATING OPTICAL FLOW!'
 
 
@@ -47,7 +51,7 @@ def main(video_root):
     final_status = False
     
     #create output folder if necessary
-    flow_folder = video_root+"flow/"
+    flow_folder = video_root + "flow/"
     if not os.path.exists(flow_folder):
         os.mkdir(flow_folder)
 
