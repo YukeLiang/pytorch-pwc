@@ -26,7 +26,7 @@ def get_optical_flow(frame_list, output_dir):
             break
         second_frame = frame_list[idx + 1]
         output_file = '%s%06d.flo'%(output_dir, idx)
-        flow_cmd = ['python pytorch-pwc/run.py',
+        flow_cmd = ['python run.py',
                     '--model', 'default',
                     '--first', first_frame,
                     '--second', second_frame,
