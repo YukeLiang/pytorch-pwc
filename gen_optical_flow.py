@@ -34,6 +34,8 @@ def get_optical_flow(frame_list, output_dir):
         flow_cmd = ' '.join(flow_cmd)
         try: 
             print('Processing...')
+            print('Finished getting flow field from {:d}th frame to {:d} frame.',
+                 idx, idx + 1) 
             subprocess.run(flow_cmd, shell=True)
         except subprocess.CalledProcessError as err:
             return status, err.output
