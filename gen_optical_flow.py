@@ -14,6 +14,7 @@ import json
 import numpy as np
 import cv2
 import subprocess
+from run import estimate_wrapper
 
 ###### For https://github.com/sniklaus/pytorch-pwc
 def get_optical_flow(frame_list, output_dir):
@@ -69,7 +70,8 @@ def main(video_root, output_dir):
         print("{:d} frames in {:s}".format(len(frame_list), video_root))
         
     print('READY TO GENEARTE OPTICAL FLOW!')
-    get_optical_flow(frame_list, output_dir)
+    # get_optical_flow(frame_list, output_dir)
+    print(estimate_wrapper(frame_list[0],frame_list[1]))
 
     final_status = True
     return final_status
