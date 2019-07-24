@@ -17,8 +17,7 @@ import subprocess
 
 ###### For https://github.com/sniklaus/pytorch-pwc
 def get_optical_flow(frame_list, output_dir):
-    status = False
-   
+
     print('START GENERATING OPTICAL FLOW!')
     # first_img = frame_list[0]
     for idx, frame in enumerate(frame_list):
@@ -27,33 +26,38 @@ def get_optical_flow(frame_list, output_dir):
             continue
         second_img = frame
         first_img = frame_list[prev_idx]
-        # Be careful, named with source frame
         output_file = '%s%06d.flo'%(output_dir, idx)
-        flow_cmd = ['python run.py',
-                    '--model', 'default',
-                    '--first', first_img,
-                    '--second', second_img,
-                    '--out', output_file]
-        flow_cmd = ' '.join(flow_cmd)
-        try: 
-            print('Processing...')
-            subprocess.check_call(flow_cmd, shell=True)
-        except subprocess.CalledProcessError as err:
-            return status, err.output
-        print('Finished getting flow field from {:d}th frame to {:d}th frame.'
-        .format(idx, idx+1))
+        if(get_flow_pair(first_img, second_img, output_file)):
+            print('Finished getting flow field from {:d}th frame to {:d}th frame.'
+            .format(idx, idx+1))
+        else:
+            return False
+        # Be careful, named with source frame
+    return True
 
-    status = True
-    return status, 'FINISHED GENERATING OPTICAL FLOW!'
+def get_flow_pair(first_img, second_img, output_file):
 
+    flow_cmd = ['python run.py',
+                '--model', 'default',
+                '--first', first_img,
+                '--second', second_img,
+                '--out', output_file]
+    flow_cmd = ' '.join(flow_cmd)
+    try: 
+        print('Processing...')
+        subprocess.check_call(flow_cmd, shell=True)
+    except KeyboardInterrupt:
+        return False
+    except subprocess.CalledProcessError as err:
+        get_flow_pair(first_img, second_img, output_file)
+    return True
 
-def main(video_root):
+def main(video_root, output_dir):
     final_status = False
     
     #create output folder if necessary
-    flow_folder = video_root + "flow/"
-    if not os.path.exists(flow_folder):
-        os.mkdir(flow_folder)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
 
     frame_list = sorted(glob.glob(os.path.join(video_root, 'img', "*.jpg")))
     
@@ -65,7 +69,7 @@ def main(video_root):
         print("{:d} frames in {:s}".format(len(frame_list), video_root))
         
     print('READY TO GENEARTE OPTICAL FLOW!')
-    get_optical_flow(frame_list, flow_folder)
+    get_optical_flow(frame_list, output_dir)
 
     final_status = True
     return final_status
@@ -76,5 +80,7 @@ if __name__ == '__main__':
     description = 'Helper script for running detector over video frames.'
     p = argparse.ArgumentParser(description=description)
     p.add_argument('video_root', type=str,
+                   help='video frames directory where each video has a folder.')  
+    p.add_argument('output_dir', type=str,
                    help='video frames directory where each video has a folder.')  
     main(**vars(p.parse_args()))
