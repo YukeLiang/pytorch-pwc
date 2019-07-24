@@ -308,9 +308,9 @@ def estimate(tensorFirst, tensorSecond):
 
 ##########################################################
 
-def estimate_wrapper():
-	tensorFirst = torch.FloatTensor(numpy.array(PIL.Image.open(arguments_strFirst))[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0))
-	tensorSecond = torch.FloatTensor(numpy.array(PIL.Image.open(arguments_strSecond))[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0))
+def estimate_wrapper(First, Second):
+	tensorFirst = torch.FloatTensor(numpy.array(PIL.Image.open(First))[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0))
+	tensorSecond = torch.FloatTensor(numpy.array(PIL.Image.open(Second))[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0))
 	tensorOutput = estimate(tensorFirst, tensorSecond)
 	return numpy.array(tensorOutput.numpy().transpose(1, 2, 0), numpy.float32)
 
